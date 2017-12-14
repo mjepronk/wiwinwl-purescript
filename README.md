@@ -1,4 +1,55 @@
-# What I Wish I Knew Before Learning PureScript
+# What I Wish I Knew When Learning PureScript
+
+## Basics
+
+### Install PureScript
+
+```bash
+$ npm install -g purescript pulp psc-package
+# Optional:
+$ npm install -g purescript-psa 
+```
+
+### Starting a new project
+
+```bash
+$ mkdir purescript-hello
+$ cd purescript-hello/
+$ pulp --psc-package init
+$ pulp run
+```
+
+To install additional dependencies use `psc-package`. Do not include the
+`purescript-` prefix, like so:
+
+```bash
+$ psc-package install maybe
+```
+
+Note: you could also use Bower as a package manager, but psc-package problably
+is a better choice as of now.
+
+### PSCi
+
+PSCi is the REPL for PureScript:
+
+```bash
+$ pulp psci
+```
+
+Importing modules on the REPL uses the same syntax as in the source code. In
+PSCi you do not use `let` to bind variables (as of version 0.11). So, you can
+write:
+
+```purescript
+> import Data.Maybe
+> foo = Just 1
+```
+
+If you try to reassign an existing binding PSCi will complain. You either have
+to chose a new variable name or you can optionally `:reload`. Which will remove
+all bindings and reimports all your imported modules (compiling when necessary).
+
 
 ## Modules
 
@@ -43,7 +94,6 @@ main = log "Hello world!"
 As you can see here in the type of `main`, PureScript has a type `Unit` used in
 place of Haskell's `()`. The Prelude module provides a value `unit` that
 inhabits this type.
-
 
 ### Importing modules
 
@@ -122,22 +172,6 @@ module A (module A, module B) where
 import B
 data ...
 ```
-
-### PSCi
-
-Importing modules on the REPL uses the same syntax as in the source code. In
-PSCi you do not use `let` to bind variables (as of version 0.11). So, you can
-write:
-
-```purescript
-> import Data.Maybe
-> foo = Just 1
-```
-
-If you try to reassign an existing binding PSCi will complain. You either have
-to chose a new variable name or you can optionally `:reload`. Which will remove
-all bindings and reimports all your imported modules (compiling when necessary).
-
 
 
 ## Common type classes
