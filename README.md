@@ -144,7 +144,10 @@ all bindings and reimports all your imported modules (compiling when necessary).
 
 ### Relationships
 
-![Alt text](http://g.gravizo.com/g?
+![Type class hierarchy](http://g.gravizo.com/g?digraph%20G%20{%22Semigroupoid%22%20-%3E%20%22Category%22%22Functor%22%20-%3E%20%22Apply%22%22Apply%22%20-%3E%20%22Applicative%22%22Semigroup%22%20-%3E%20%22Monoid%22%22Monoid%22%20-%3E%20%22Foldable%22%20[style=dotted]%22Functor%22%20-%3E%20%22Traversable%22%22Foldable%22%20-%3E%20%22Traversable%22%22Applicative%22%20-%3E%20%22Traversable%22%20[style=dotted]%22Applicative%22%20-%3E%20%22Monad%22%22Apply%22%20-%3E%20%22Bind%22%22Bind%22%20-%3E%20%22Monad%22})
+
+<!--
+![Type class hierarchy](http://g.gravizo.com/g?
   digraph G {
     "Semigroupoid" -> "Category"
     "Functor" -> "Apply"
@@ -159,6 +162,7 @@ all bindings and reimports all your imported modules (compiling when necessary).
     "Bind" -> "Monad"
   }
 )
+-->
 
 ### Semigroupoid *(purescript-prelude)*
 
