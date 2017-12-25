@@ -1,5 +1,9 @@
 # What I Wish I Knew When Learning PureScript
 
+A concise overview of the PureScript language and ecosystem, in the same style
+as ["What I Wish I Knew When Learning
+Haskell"](http://dev.stephendiehl.com/hask/) by Stephen Diehl.
+
 ## Basics
 
 ### Install PureScript
@@ -12,6 +16,9 @@ $ npm install -g purescript-psa
 
 ### Starting a new project
 
+Now we can use [Pulp](https://github.com/purescript-contrib/pulp) (PureScript's
+build tool) to create a new empty project.
+
 ```bash
 $ mkdir purescript-hello
 $ cd purescript-hello/
@@ -19,8 +26,10 @@ $ pulp --psc-package init
 $ pulp run
 ```
 
-To install additional dependencies use `psc-package`. Do not include the
-`purescript-` prefix, like so:
+Note that we told Pulp to use
+[psc-package](https://github.com/purescript/psc-package) as our package manager.
+We are going to use it to install some additional dependencies. Do not include
+the `purescript-` prefix of the package when using psc-package, like so:
 
 ```bash
 $ psc-package install maybe
@@ -50,6 +59,160 @@ If you try to reassign an existing binding PSCi will complain. You either have
 to chose a new variable name or you can optionally `:reload`. Which will remove
 all bindings and reimports all your imported modules (compiling when necessary).
 
+You can see the type of an expression with `:t` (or `:type`):
+
+```purescript
+> :t Just 1
+Maybe Int
+```
+
+Another handy feature is `:paste` mode, which allows you to paste multiple lines
+of code into PSCi, or to type a statement with multiple lines. You can finish
+input by pressing `Ctrl-D` while on the last empty line.
+
+
+## Types
+
+The built-in types are defined in the
+[Prim](https://pursuit.purescript.org/builtins/docs/Prim) module that is
+embedded in the PureScript compiler (this module is implicitly imported in every
+module).
+
+### Number
+
+A double precision floating point number (IEEE 754).
+
+```purescript
+> :t 42.0
+Number
+```
+
+### Int
+
+A 32-bit signed integer.
+
+```purescript
+> :t 42
+Int
+```
+
+You can also use hexadecimal notation for Integer literals:
+
+```purescript
+> 0xff
+255
+
+> :t 0xff
+Int
+```
+
+Note that you can't mix `Int` and `Number` in expressions like `add` and `div`. Use
+`toNumber` from `Data.Int` (package `purescript-integers`) to convert an `Int`
+to a `Number`.
+
+### String
+
+Strings are a built-in type in PureScript and correspond to the native string in
+JavaScript. So, unlike Haskell they're not stored as a list of characters.
+
+```purescript
+> :t "Hello world!"
+String
+```
+
+Multi-line string literals are also supported with triple quotes ("""):
+
+```purescript
+> :paste  -- paste mode allows us to type multi-line statements in PSCi
+> multiline = """Hello
+… world!"""
+…  -- press Ctrl-D now to stop paste mode
+> multiline
+"Hello\nworld!"
+```
+
+String utility functions can be found in
+[`purescript-strings`](https://github.com/purescript/purescript-strings). It
+also contains functions for the `Char` type.
+
+### Char
+
+A single character (UTF-16 code unit). The JavaScript representation is a normal
+String, which is guaranteed by the PureScript type system to contain one code
+unit.
+
+```purescript
+> :t 'a'
+Char
+```
+
+### Boolean
+
+Either `true` or `false`. Note that the values are written in lowercase like in
+JavaScript, in contrast with Haskell where they are written capitalized. Also,
+the type is called `Boolean` instead of `Bool` as in Haskell.
+
+```purescript
+> true == false  -- equal
+false
+
+> true /= false  -- not equal
+true
+
+> true || false  -- or
+true
+
+> true && false  -- and
+false
+
+> not true       -- negation
+false
+```
+
+### Array
+
+Arrays are implemented using Javascript arrays, but must be homogeneous (all
+elements must be of the same type). They support efficient random access. The
+`Data.Array` module from
+[`purescript-arrays`](https://github.com/purescript/purescript-arrays) provides
+many functions for working with arrays.
+
+```purescript
+> import Data.Array
+> xs = [1, 2, 3, 4, 5] 
+> :t xs
+Array Int
+> head xs  -- head is a total function in PS
+Just 1
+```
+
+### Records
+
+Records correspond to JavaScript's objects, and record literals have the same
+syntax as JavaScript's object literals:
+
+```purescript
+> lang = { title: "PureScript", strictEval: true, pure: true }
+> lang.title
+"PureScript"
+```
+
+<!--
+TODO: pattern matching
+TODO: record puns
+TODO: polymorphic records
+-->
+
+### List
+
+Lists are not a built-in type in PureScript, but are provided by the library
+[`purescript-lists`](https://github.com/purescript/purescript-lists). Unlike in
+Haskell, these lists are strict.
+
+### Unit
+
+PureScript has a type `Unit` used in place of Haskell's `()`. The Prelude module
+provides a value `unit` that inhabits this type.
 
 ## Modules
 
