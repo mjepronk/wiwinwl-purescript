@@ -1,33 +1,65 @@
+:toc: macro
+:toc-title:
+:toclevels: 99
+
 # What I Wish I Knew When Learning PureScript
 
+[IMPORTANT]
+====
+This documentation is outdated, please see
+https://github.com/JordanMartinez/purescript-jordans-reference[Jordan's Purescript Reference].
+====
+
 A concise overview of the PureScript language and ecosystem, in the same style
-as ["What I Wish I Knew When Learning
-Haskell"](http://dev.stephendiehl.com/hask/) by Stephen Diehl.
+as http://dev.stephendiehl.com/hask/["What I Wish I Knew When Learning
+Haskell"] by Stephen Diehl.
+
+## Table of Contents
+toc::[]
 
 ## Basics
 
 ### Install PureScript
 
+We will use NPM to install PureScript. If you want to install PureScript (and
+other NPM packages) into your home directory (rather than to the global system
+directories), you could set a `prefix` in your `npmrc`. On Linux you can do:
+
 ```bash
-$ npm install -g purescript pulp psc-package
-# Optional:
-$ npm install -g purescript-psa 
+$ npm set prefix $HOME/.local
+```
+
+Then the following commands can be run as an ordinary user instead of as root:
+
+```bash
+$ npm install -g purescript@0.13.x pulp psc-package purescript-psa
+```
+
+We only need to create a symlink to `purs.bin`. If you installed to the
+`$HOME/.local` prefix then you can do it as follows. Also, make sure that
+`$HOME/.local/bin/` is in your path.
+
+```bash
+$ export PATH="$HOME/.local/bin/:$PATH"
+$ cd ~/.local/bin/
+$ ln -s ../lib/node_modules/purescript/purs.bin purs
+$ purs --version
+0.13.2
 ```
 
 ### Starting a new project
 
-Now we can use [Pulp](https://github.com/purescript-contrib/pulp) (PureScript's
+Now we can use https://github.com/purescript-contrib/pulp[Pulp] (PureScript's
 build tool) to create a new empty project.
 
 ```bash
 $ mkdir purescript-hello
 $ cd purescript-hello/
 $ pulp --psc-package init
-$ pulp run
 ```
 
 Note that we told Pulp to use
-[psc-package](https://github.com/purescript/psc-package) as our package manager.
+https://github.com/purescript/psc-package[psc-package] as our package manager.
 We are going to use it to install some additional dependencies. Do not include
 the `purescript-` prefix of the package when using psc-package, like so:
 
@@ -36,14 +68,25 @@ $ psc-package install maybe
 ```
 
 Note: you could also use Bower as a package manager, but psc-package problably
-is a better choice as of now.
+is a better choice as of now. Also, there is another option: https://github.com/spacchetti/spago[Spago].
+
+
+### Run
+
+Run your code with `pulp run` (for now you have to specify `--psc-package` every time you use pulp):
+
+```bash
+$ pulp --psc-package run
+[..snip..]
+Hello sailor!
+```
 
 ### PSCi
 
-PSCi is the REPL for PureScript:
+PSCi is the REPL for PureScript, you can use Pulp to run it for you:
 
 ```bash
-$ pulp psci
+$ pulp --psc-package repl
 ```
 
 Importing modules on the REPL uses the same syntax as in the source code. In
@@ -70,11 +113,43 @@ Another handy feature is `:paste` mode, which allows you to paste multiple lines
 of code into PSCi, or to type a statement with multiple lines. You can finish
 input by pressing `Ctrl-D` while on the last empty line.
 
+### Documentation
+
+You can build documentation for your project and all it's dependencies in HTML
+format like so:
+
+```bash
+$ pulp docs -- --format html
+```
+
+This can be really useful when you don't have continuos Internet access (and
+thus access to Pursuit).
+
+
+### Spago
+
+```bash
+
+$ npm install -g spago
+$ spago --version
+```
+
+If you get something like the following error:
+
+```
+spago: error while loading shared libraries: libtinfo.so.5: cannot open shared object file: No such file or directory
+```
+
+I solved it on Fedora by installing the package `ncurses-compat-libs`. You could also https://github.com/spacchetti/spago/issues/104#issue-408423391[create a symlink] or install from source.
+
+
+
+
 
 ## Types
 
 The built-in types are defined in the
-[Prim](https://pursuit.purescript.org/builtins/docs/Prim) module that is
+https://pursuit.purescript.org/builtins/docs/Prim[Prim] module that is
 embedded in the PureScript compiler (this module is implicitly imported in every
 module).
 
@@ -86,6 +161,8 @@ A double precision floating point number (IEEE 754).
 > :t 42.0
 Number
 ```
+
+TODO: show all operators that work with Number
 
 ### Int
 
@@ -106,7 +183,7 @@ You can also use hexadecimal notation for Integer literals:
 Int
 ```
 
-Note that you can't mix `Int` and `Number` in expressions like `add` and `div`. Use
+NOTE: Note that you can't mix `Int` and `Number` in expressions like `add` and `div`. Use
 `toNumber` from `Data.Int` (package `purescript-integers`) to convert an `Int`
 to a `Number`.
 
@@ -132,7 +209,7 @@ Multi-line string literals are also supported with triple quotes ("""):
 ```
 
 String utility functions can be found in
-[`purescript-strings`](https://github.com/purescript/purescript-strings). It
+https://github.com/purescript/purescript-strings[`purescript-strings`]. It
 also contains functions for the `Char` type.
 
 ### Char
@@ -148,9 +225,11 @@ Char
 
 ### Boolean
 
-Either `true` or `false`. Note that the values are written in lowercase like in
-JavaScript, in contrast with Haskell where they are written capitalized. Also,
-the type is called `Boolean` instead of `Bool` as in Haskell.
+Either `true` or `false`.
+
+NOTE: Note that the values are written in lowercase like in JavaScript, in
+contrast with Haskell where they are written capitalized. Also, the type is
+called `Boolean` instead of `Bool` as in Haskell.
 
 ```purescript
 > true == false  -- equal
@@ -174,12 +253,12 @@ false
 Arrays are implemented using Javascript arrays, but must be homogeneous (all
 elements must be of the same type). They support efficient random access. The
 `Data.Array` module from
-[`purescript-arrays`](https://github.com/purescript/purescript-arrays) provides
+https://github.com/purescript/purescript-arrays[`purescript-arrays`] provides
 many functions for working with arrays.
 
 ```purescript
 > import Data.Array
-> xs = [1, 2, 3, 4, 5] 
+> xs = [1, 2, 3, 4, 5]
 > :t xs
 Array Int
 > head xs  -- head is a total function in PS
@@ -188,7 +267,7 @@ Just 1
 
 ### Records
 
-Records correspond to JavaScript's objects, and record literals have the same
+Records correspond to JavaScript's objects, and record literals (values) have the same
 syntax as JavaScript's object literals:
 
 ```purescript
@@ -197,17 +276,26 @@ syntax as JavaScript's object literals:
 "PureScript"
 ```
 
-<!--
-TODO: pattern matching
-TODO: record puns
-TODO: polymorphic records
--->
+#### Pattern matching
+
+We can perform pattern matching on records like this:
+
+#### Record puns
+
+TODO
+
+#### Polymorphic records
+
+TODO
 
 ### List
 
 Lists are not a built-in type in PureScript, but are provided by the library
-[`purescript-lists`](https://github.com/purescript/purescript-lists). Unlike in
+https://github.com/purescript/purescript-lists[`purescript-lists`]. Unlike in
 Haskell, these lists are strict.
+
+Also, there is no special syntax to write the types (i.e. `[String]` or
+`[Int]`), you should just write `List String`.
 
 ### Unit
 
@@ -295,21 +383,35 @@ Importing qualified:
 ```purescript
 import Data.Maybe as Data.Maybe
 ```
-Note that PureScript does not have the `qualified` keyword as in Haskell.
+
+NOTE: Note that PureScript does not have the `qualified` keyword as Haskell.
 
 Only names that have been imported into a module can be referenced, and you can
 only reference things exactly as you imported them.
 
 Some examples:
 
-| Import statement           | Exposed members |
-|----------------------------|-----------------|
-| `import X`                 | `A`, `f`        |
-| `import X as Y`            | `Y.A`, `Y.f`    |
-| `import X (A)`             | `A`             |
-| `import X (A) as Y`        | `Y.A`           |
-| `import X hiding (f)`      | `A`             |
-| `import Y hiding (f) as Y` | `Y.A`           |
+|===
+|Import statement |Exposed members
+
+|`import X`
+|`A`, `f`
+
+|`import X as Y`
+| `Y.A`, `Y.f`
+
+|`import X (A)`
+| `A`
+
+|`import X (A) as Y`
+| `Y.A`
+
+|`import X hiding (f)`
+| `A`
+
+|`import Y hiding (f) as Y`
+| `Y.A`
+|===
 
 ### Exporting modules
 
@@ -336,15 +438,163 @@ import B
 data ...
 ```
 
+## Functions
+
+### Function composition
+
+In PureScript function composition is done with the `(<<<)` operator:
+
+```purescript
+
+> import Data.String (toLower, trim)
+> clean = toLower <<< trim
+> clean " Matthias "
+"matthias"
+
+```
+
+### Operator Sections
+
+PureScript, like Haskell, supports operator sections, or partial application on
+infix operators, however the syntax is different: you need to put an underscore
+in the place of the newly created function's argument. For example:
+
+```purescript
+
+> import Data.Array ((..))  -- Import the `range` operator from Data.Array
+> map (2 * _) (1..10)
+[2,4,6,8,10,12,14,16,18,20]
+
+> prependHello = ("Hello " <> _)
+> prependHello "World"
+"Hello World"
+
+> (_ <> "!") (prependHello "World")
+"Hello World!"
+
+```
+
+## Typeclasses
+
+### Create a type class
+
+We can define a type class using the `class` keyword:
+
+```purescript
+
+class Show a where
+  show :: a -> String
+
+```
+
+### Create an instance
+
+We can manually create an instance for a type class like this:
+
+```purescript
+
+data Colour = Red | White | Blue
+
+instance eqColour :: Eq Colour where
+  eq Red   Red   = true
+  eq White White = true
+  eq Blue  Blue  = true
+  eq _     _     = false
+
+instance showColour :: Show Colour where
+  show Red   = "Red"
+  show White = "White"
+  show Blue  = "Blue"
+
+```
+
+### Instance deriving
+
+Of course this may become tedious, that's why the PureScript compiler supports
+automatic deriving for a number of type classes:
+
+```purescript
+
+data Colour = Red | White | Blue
+
+derive instance eqColour :: Eq Colour
+
+```
+
+Currently, the following type classes can be automatically derived by the
+compiler:
+
+- Data.Generic (class Generic)
+- Data.Generic.Rep (class Generic)
+- Data.Eq (class Eq)
+- Data.Ord (class Ord)
+- Data.Functor (class Functor)
+- Data.Newtype (class Newtype)
+
+### Newtype deriving
+
+The compiler can derive instances of newtype automatically:
+
+```purescript
+
+newtype EmailAddress = EmailAddress String
+
+derive instance newtypeEmailAddress :: Newtype EmailAddress _
+
+```
+
+### Generic deriving
+
+Generic deriving uses generic programming (inspired by GHC's Generics) to
+automatically derive type class instances:
+
+```purescript
+
+import Data.Generic (class Generic, gShow)
+
+data Colour = Red | White | Blue
+
+derive instance genericColour :: Generic Colour
+
+instance showColour :: Show Colour where
+  show = gShow
+
+```
+
+This requires the `purescript-generics` package.
+
+### Deriving instances for records
+
+If you want to create instances for records, you need to wrap the record in a
+newtype first. Like this:
+
+```purescript
+
+import Data.Generic (class Generic, gShow, gEq, gCompare)
+
+newtype Person = Person { firstName :: String, lastName :: String }
+
+derive instance genericPerson :: Generic Person _
+
+instance eqPerson :: Eq Person where
+  eq = gEq
+
+instance ordPerson :: Ord Person where
+  compare = gCompare
+
+instance showPerson :: Show Person where
+  show = gShow
+
+```
 
 ## Common type classes
 
 ### Relationships
 
-![Type class hierarchy](http://g.gravizo.com/g?digraph%20G%20{%22Semigroupoid%22%20-%3E%20%22Category%22%22Functor%22%20-%3E%20%22Apply%22%22Apply%22%20-%3E%20%22Applicative%22%22Semigroup%22%20-%3E%20%22Monoid%22%22Monoid%22%20-%3E%20%22Foldable%22%20[style=dotted]%22Functor%22%20-%3E%20%22Traversable%22%22Foldable%22%20-%3E%20%22Traversable%22%22Applicative%22%20-%3E%20%22Traversable%22%20[style=dotted]%22Applicative%22%20-%3E%20%22Monad%22%22Apply%22%20-%3E%20%22Bind%22%22Bind%22%20-%3E%20%22Monad%22})
+image::http://g.gravizo.com/g?digraph%20G%20{%22Semigroupoid%22%20-%3E%20%22Category%22%22Functor%22%20-%3E%20%22Apply%22%22Apply%22%20-%3E%20%22Applicative%22%22Semigroup%22%20-%3E%20%22Monoid%22%22Monoid%22%20-%3E%20%22Foldable%22%20[style=dotted]%22Functor%22%20-%3E%20%22Traversable%22%22Foldable%22%20-%3E%20%22Traversable%22%22Applicative%22%20-%3E%20%22Traversable%22%20[style=dotted]%22Applicative%22%20-%3E%20%22Monad%22%22Apply%22%20-%3E%20%22Bind%22%22Bind%22%20-%3E%20%22Monad%22}[Type class hierarchy]
 
-<!--
-![Type class hierarchy](http://g.gravizo.com/g?
+////
+http://g.gravizo.com/g?
   digraph G {
     "Semigroupoid" -> "Category"
     "Functor" -> "Apply"
@@ -359,12 +609,13 @@ data ...
     "Bind" -> "Monad"
   }
 )
--->
+////
+
 
 ### Semigroupoid *(purescript-prelude)*
 
 A Semigroupoid is similar to a Category but does not require an identity
-element, just composable morphisms.
+element, just composable https://github.com/hemanth/functional-programming-jargon#morphism[morphisms].
 
 ```purescript
 class Semigroupoid a where
@@ -516,8 +767,7 @@ const :: forall a b.                    a ->   b ->   a
 (*>)  :: forall a b f. (Apply f)   => f a -> f b -> f b
 ```
 
-Note that Purescript does not have `(>>)` or `(<<)` as `Apply` is a superclass
-of `Monad`.
+NOTE: Purescript does not have the operators `(>>)` or `(<<)` as `Apply` is a superclass of `Monad` (i.e. use `(\*>)` and `(<*)` respectively).
 
 ### Restructuring
 
@@ -531,3 +781,10 @@ join     :: forall a m.   (Bind m)                       => m (m a) -> m a
 id   :: forall t a. (Category a)    => a t t
 pure :: forall a f. (Applicative f) => a -> f a
 ```
+
+## Links
+
+- https://leanpub.com/purescript/read[PureScript by Example]
+- Official https://github.com/purescript/documentation[PureScript documentation]
+- https://pursuit.purescript.org/[Pursuit] (official package documentation, like Hackage)
+- https://github.com/hemanth/functional-programming-jargon[Functional programming jargon]
