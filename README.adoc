@@ -6,8 +6,7 @@
 
 [IMPORTANT]
 ====
-This documentation is outdated, please see
-https://github.com/JordanMartinez/purescript-jordans-reference[Jordan's Purescript Reference].
+This documentation can be outdated. See <<Links>> for official documentation.
 ====
 
 A concise overview of the PureScript language and ecosystem, in the same style
@@ -19,7 +18,7 @@ toc::[]
 
 ## Basics
 
-### Install PureScript
+### Install PureScript and Spago
 
 We will use NPM to install PureScript. If you want to install PureScript (and
 other NPM packages) into your home directory (rather than to the global system
@@ -32,7 +31,7 @@ $ npm set prefix $HOME/.local
 Then the following commands can be run as an ordinary user instead of as root:
 
 ```bash
-$ npm install -g purescript@0.13.x pulp psc-package purescript-psa
+$ npm install -g purescript@0.13.x spago
 ```
 
 We only need to create a symlink to `purs.bin`. If you installed to the
@@ -47,46 +46,69 @@ $ purs --version
 0.13.2
 ```
 
-### Starting a new project
+```bash
+$ spago --version
+```
 
-Now we can use https://github.com/purescript-contrib/pulp[Pulp] (PureScript's
-build tool) to create a new empty project.
+If you get something like the following error:
+
+```
+spago: error while loading shared libraries: libtinfo.so.5: cannot open shared object file: No such file or directory
+```
+
+I solved it on Fedora by installing the package `ncurses-compat-libs`. You could
+also https://github.com/spacchetti/spago/issues/104#issue-408423391[create a
+symlink] or install from source.
+
+### Starting a new project with Spago
+
+Now we can use https://github.com/spacchetti/spago[Spago] (a package manager and
+build tool for PureScript) to create a new empty project.
 
 ```bash
 $ mkdir purescript-hello
 $ cd purescript-hello/
-$ pulp --psc-package init
+$ spago init
 ```
 
-Note that we told Pulp to use
-https://github.com/purescript/psc-package[psc-package] as our package manager.
 We are going to use it to install some additional dependencies. Do not include
-the `purescript-` prefix of the package when using psc-package, like so:
+the `purescript-` prefix of the package when using Spago, so for example to
+install `purescript-maybe`:
 
 ```bash
-$ psc-package install maybe
+$ spago install maybe
 ```
 
-Note: you could also use Bower as a package manager, but psc-package problably
-is a better choice as of now. Also, there is another option: https://github.com/spacchetti/spago[Spago].
+Spago adds the dependency to your project configuration file (`spago.dhall`). As
+the extension implies this is a file written in the Dhall configuration language
+(see this https://github.com/dhall-lang/dhall-lang/wiki/Cheatsheet[cheatsheet]).
 
+Spago uses https://github.com/purescript/package-sets[package sets] to ensure
+that all the libraries can be build together because there is only one version
+of each.
+
+NOTE: You may need to
+https://github.com/spacchetti/spago#add-a-package-to-the-package-set[add
+PureScript libraries to your local package set] if they are on Bower but not
+part of the package set.
 
 ### Run
 
-Run your code with `pulp run` (for now you have to specify `--psc-package` every time you use pulp):
+Run your code with `spago run`:
 
 ```bash
-$ pulp --psc-package run
+$ spago run
 [..snip..]
-Hello sailor!
+[info] Build succeeded.
+🍝
 ```
 
 ### PSCi
 
-PSCi is the REPL for PureScript, you can use Pulp to run it for you:
+PSCi is the REPL for PureScript, you can use Spago to run it for you:
 
 ```bash
-$ pulp --psc-package repl
+$ spago repl
 ```
 
 Importing modules on the REPL uses the same syntax as in the source code. In
@@ -119,32 +141,11 @@ You can build documentation for your project and all it's dependencies in HTML
 format like so:
 
 ```bash
-$ pulp docs -- --format html
+$ spago docs --open
 ```
 
-This can be really useful when you don't have continuos Internet access (and
+This can be really useful when you don't have continuous Internet access (and
 thus access to Pursuit).
-
-
-### Spago
-
-```bash
-
-$ npm install -g spago
-$ spago --version
-```
-
-If you get something like the following error:
-
-```
-spago: error while loading shared libraries: libtinfo.so.5: cannot open shared object file: No such file or directory
-```
-
-I solved it on Fedora by installing the package `ncurses-compat-libs`. You could also https://github.com/spacchetti/spago/issues/104#issue-408423391[create a symlink] or install from source.
-
-
-
-
 
 ## Types
 
@@ -183,9 +184,9 @@ You can also use hexadecimal notation for Integer literals:
 Int
 ```
 
-NOTE: Note that you can't mix `Int` and `Number` in expressions like `add` and `div`. Use
-`toNumber` from `Data.Int` (package `purescript-integers`) to convert an `Int`
-to a `Number`.
+NOTE: Note that you can't mix `Int` and `Number` in expressions like `add` and
+`div`. Use `toNumber` from `Data.Int` (package `purescript-integers`) to convert
+an `Int` to a `Number`.
 
 ### String
 
@@ -336,9 +337,9 @@ script.
 ```purescript
 module Main where
 
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Effect.Console (log)
 
-main :: forall eff. Eff (console :: CONSOLE | eff) Unit
+main :: Effect Unit
 main = log "Hello world!"
 ```
 
@@ -356,8 +357,7 @@ To open import a module:
 import Prelude
 ```
 
-PureScript allows one open import per module. Usually this is `Prelude` (or an
-alternative prelude like `neon` or `batteries`).
+PureScript allows one open import per module. Usually this is `Prelude`.
 
 To import a specific set of members:
 ```purescript
@@ -384,7 +384,8 @@ Importing qualified:
 import Data.Maybe as Data.Maybe
 ```
 
-NOTE: Note that PureScript does not have the `qualified` keyword as Haskell.
+NOTE: Note that PureScript does not have the `qualified` keyword as Haskell. An
+import is always qualified with `as`.
 
 Only names that have been imported into a module can be referenced, and you can
 only reference things exactly as you imported them.
@@ -437,6 +438,13 @@ module A (module A, module B) where
 import B
 data ...
 ```
+
+Re-export a restricted set of members:
+```purescript
+module A (module ExportB) where
+import B (foo, bar) as ExportB
+```
+
 
 ## Functions
 
@@ -533,7 +541,9 @@ compiler:
 
 ### Newtype deriving
 
-The compiler can derive instances of newtype automatically:
+In Haskell it's common to define a newtype using record syntax to automatically
+create an unwrap function. In PureScript the `Newtype` type class provides
+`unwrap`. The compiler can derive instances of `Newtype` automatically:
 
 ```purescript
 
@@ -541,7 +551,12 @@ newtype EmailAddress = EmailAddress String
 
 derive instance newtypeEmailAddress :: Newtype EmailAddress _
 
+main = do
+  let email = EmailAddress "me@example.com"
+  log $ unwrap email
 ```
+
+This requires the `purescript-newtype` package.
 
 ### Generic deriving
 
@@ -621,9 +636,10 @@ element, just composable https://github.com/hemanth/functional-programming-jargo
 class Semigroupoid a where
   compose :: forall b c d. a c d -> a b c -> a b d
 ```
-`(<<<)` is an alias for `compose`. `(>>>)` is an alias for `flip compose`. So,
-function composition is done with the `(<<<)` operator unlike `(.)` in Haskell.
-The `.` is used for record field access in PureScript.
+
+NOTE: `(<<<)` is an alias for `compose`. `(>>>)` is an alias for `flip compose`.
+So, function composition is done with the `(<<<)` operator unlike `(.)` in
+Haskell. The `.` is used for record field access in PureScript.
 
 ### Category *(purescript-prelude)*
 
@@ -633,8 +649,10 @@ element.
 
 ```purescript
 class (Semigroupoid a) <= Category a where
-  id :: forall t. a t t
+  identity :: forall t. a t t
 ```
+
+NOTE: Per version 4.0.0 of the Prelude `id` has been renamed to `identity`.
 
 ### Semigroup *(purescript-prelude)*
 
@@ -646,8 +664,8 @@ class Semigroup a where
   append :: a -> a -> a
 ```
 
-`(<>)` is an alias for `append`. The `(++)` operator as an alias for `append` is
-removed in PureScript 0.9.1.
+NOTE: `(<>)` is an alias for `append`. The `(++)` operator as an alias for
+`append` is removed in PureScript 0.9.1.
 
 ### Monoid *(purescript-monoid)*
 
@@ -667,8 +685,10 @@ The map function allows a function to be “lifted” over a data structure.
 class Functor f where
   map :: forall a b. (a -> b) -> f a -> f b
 ```
-`(<$>)` is an alias for `map`. `(<#>)` is an alias for `map` with its arguments
-reversed.
+
+NOTE: `(<$>)` is an alias for `map`. `(<#>)` is an alias for `map` with its
+arguments reversed.
+NOTE: PureScript uses `map` instead of Haskell's `fmap`.
 
 ### Foldable *(purescript-foldable-traversable)*
 
@@ -695,7 +715,7 @@ class Functor f <= Apply f where
   apply :: forall a b. f (a -> b) -> f a -> f b
 ```
 
-`(<*>)` is an alias for `apply`.
+NOTE: `(<*>)` is an alias for `apply`.
 
 ### Applicative *(purescript-prelude)*
 
@@ -728,8 +748,8 @@ class Apply m <= Bind m where
 class (Applicative m, Bind m) <= Monad m
 ```
 
-`(>>=)` is an alias for `bind`. Note: PureScript does not have `return` as an
-alias for `pure`.
+NOTE: `(>>=)` is an alias for `bind`. PureScript does not have `return` as
+an alias for `pure`.
 
 
 ## Function types
@@ -745,8 +765,9 @@ alias for `pure`.
 traverse :: forall a b m t. (Traversable t, Applicative m) => (a -> m b) -> t a -> m (t b)
 foldMap  :: forall a m f.   (Foldable f, Monoid m)         => (a -> m)   -> f a -> m
 ```
-Note that in PureScript `map` can be used instead of `liftA` or `liftM` in
-Haskell. And that `traverse` replaces `mapM`.
+
+NOTE: In PureScript `map` can be used instead of `liftA` or `liftM` in Haskell,
+and `traverse` replaces `mapM`.
 
 ### Composition
 
@@ -767,7 +788,8 @@ const :: forall a b.                    a ->   b ->   a
 (*>)  :: forall a b f. (Apply f)   => f a -> f b -> f b
 ```
 
-NOTE: Purescript does not have the operators `(>>)` or `(<<)` as `Apply` is a superclass of `Monad` (i.e. use `(\*>)` and `(<*)` respectively).
+NOTE: Purescript does not have the operators `(>>)` or `(<<)` as `Apply` is a
+superclass of `Monad` (i.e. use `(\*>)` and `(<*)` respectively).
 
 ### Restructuring
 
@@ -778,13 +800,15 @@ join     :: forall a m.   (Bind m)                       => m (m a) -> m a
 
 ### Identity
 ```purescript
-id   :: forall t a. (Category a)    => a t t
-pure :: forall a f. (Applicative f) => a -> f a
+identity :: forall t a. (Category a)    => a t t
+pure     :: forall a f. (Applicative f) => a -> f a
 ```
 
 ## Links
 
 - https://leanpub.com/purescript/read[PureScript by Example]
 - Official https://github.com/purescript/documentation[PureScript documentation]
+- https://github.com/purescript/documentation/tree/master/language[PureScript Language Reference]
 - https://pursuit.purescript.org/[Pursuit] (official package documentation, like Hackage)
 - https://github.com/hemanth/functional-programming-jargon[Functional programming jargon]
+- https://github.com/purescript/documentation/blob/master/language/Differences-from-Haskell.md[PureScript: Differences from Haskell]
