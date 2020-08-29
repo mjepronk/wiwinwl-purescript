@@ -806,7 +806,12 @@ pure     :: forall a f. (Applicative f) => a -> f a
 
 ## Links
 
+### Learning Purescript
 - https://leanpub.com/purescript/read[PureScript by Example]
+- https://github.com/adkelley/javascript-to-purescript/blob/master/index.md[Make the Leap from JavaScript to PureScript]
+- https://github.com/JordanMartinez/purescript-jordans-reference[Jordan's PureScript Reference]
+
+### Reference
 - Official https://github.com/purescript/documentation[PureScript documentation]
 - https://github.com/purescript/documentation/tree/master/language[PureScript Language Reference]
 - https://pursuit.purescript.org/[Pursuit] (official package documentation, like Hackage)
